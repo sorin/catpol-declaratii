@@ -22,6 +22,7 @@ from project_template.datamodels.real_estate_type import RealEstateType
 from project_template.datamodels.estranged_goods_type import EstrangedGoodsType
 from project_template.datamodels.goods_separation_type import GoodsSeparationType
 from project_template.datamodels.declaration_type import DeclarationType
+from project_template.datamodels.investment_type import InvestmentType
 
 start_date = 1989
 end_date = datetime.datetime.now().year
@@ -54,10 +55,8 @@ class TranscribeOwnedGoodsOrServicesPerSpouse(forms.Form):
 class TranscribeOwnedIncomeFromOtherSourcesTable(forms.Form):
     count = forms.IntegerField(label="Câte rânduri completate există în tabelul {}?".format(constants.DECLARATION_TABLES['other_sources']))
 
-
 class TranscribeOwnedInvestmentsTable(forms.Form):
-    count = forms.IntegerField(label="Câte rânduri completate există în tabelul {}?".format(constants.DECLARATION_TABLES['bank_accounts']))
-
+    count = forms.IntegerField(label="Câte rânduri completate există în tabelul {}?".format(constants.DECLARATION_TABLES['investments']))
 
 class TranscribeOwnedJewelry(forms.Form):
     count = forms.IntegerField(label="Câte rânduri completate există în tabelul {}?".format(constants.DECLARATION_TABLES['jewelry']))
@@ -209,3 +208,37 @@ class TranscribeExtraValuableRowEntry(forms.Form):
     estimated_value = forms.FloatField(label="Care este valoarea bunului instrainat?")
     currency = forms.ChoiceField(label="Care este valuta in care este exprimata valoarea bunului instrainat?", 
                                     choices=Currency.return_as_iterable())
+
+class TranscribeOwnedInvestmentsRowEntry(forms.Form):
+    commercial_entity = forms.CharField(label =_("Care este societatea comerciala/Emitent pentru activele financiare? (acolo unde este cazul)"), required = False)
+    limited_resp_com_entity = forms.CharField(label=_("Care este SRL-ul in care au fost investite activele financiare? (acolo unde este cazul)"), required = False)
+    name_investment = forms.CharField(label=_("Care este numele beneficiarului investitiei? (acolo unde este cazul)"), required = False)
+    surname_investment = forms.CharField(label=_("Care este prenumele beneficiarului investitiei? (acolo unde este cazul)"), required = False)
+    description = forms.CharField(label=_("Descrierea activului financiar/Investitiei (acolo unde este cazul)"), required = False)
+    investment_type = forms.ChoiceField(label="Care este tipul investitiei?", choices=InvestmentType.return_as_iterable())
+    number_of_shares = forms.IntegerField(label="Care este numarul de titluri detinut?", required=False)
+    participation_quota = forms.IntegerField(label=_("Care este cota de participare?"), required=False)
+    total_value = forms.FloatField(label=_("Care este valoarea la zi a investitiei?"))
+    currency = forms.ChoiceField(label=_("Care este moneda in care este estimata valoarea la zi a investitiei?"), choices = Currency.return_as_iterable())
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        commercial_entity = cleaned_data.get("commercial_entity")
+        limited_resp_com_entity = cleaned_data.get("limited_resp_com_entity")
+        name_investment = cleaned_data.get("name_investment")
+        surname_investment = cleaned_data.get("surname_investment")
+
+        number_of_shares = cleaned_data.get("number_of_shares")
+        participation_quota = cleaned_data.get("participation_quota")
+
+        if not commercial_entity and not limited_resp_com_entity and not (name_investment and surname_investment):
+            # raise forms.ValidationError("Cel putin unul din campuri trebuie completat: Societatea comerciala/Emitent / SRL / Nume Prenume beneficiar")
+            message = 'Cel putin unul din campuri trebuie completat: Societatea comerciala/Emitent / SRL / Nume Prenume beneficiar'
+            self.add_error('commercial_entity', message)
+            self.add_error('limited_resp_com_entity', message)
+            self.add_error('name_investment', message)
+            self.add_error('surname_investment', message)
+
+        if not number_of_shares and not participation_quota:
+            raise forms.ValidationError(_("Cel putin unul din campuri trebuie completat: Numar titluri/Cota participare"), code='invalid')

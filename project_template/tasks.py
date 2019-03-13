@@ -7,7 +7,7 @@ import project_template.models as models
 import project_template.forms as forms
 from project_template.task_templates import DigitalizationTask, CountTableRowsTask
 
-@register()
+# @register()
 class TaskGetInitialInformation(DigitalizationTask):
     task_form = forms.TranscribeInitialInformation
     template_name = 'tasks/general_information_task.html'
@@ -172,13 +172,33 @@ class TaskOwnedGoodsOrServicesPerSpouseTable(CountTableRowsTask):
     # TODO - add child class
     child_class = None
 
+class TaskTranscribeOwnedInvestmentsRowEntry(DigitalizationTask):
+    task_form = forms.TranscribeOwnedInvestmentsRowEntry
+    template_name = "tasks/owned_investments.html"
 
+    def save_verified_data(self, verified_data):
+        issuer_name = ''
+        if verified_data['commercial_entity']:
+            issuer_name = verified_data['commercial_entity']
+        elif verified_data['limited_resp_com_entity']:
+            issuer_name = verified_data['limited_resp_com_entity']
+        elif verified_data['name_investment'] and verified_data['surname_investment']:
+            issuer_name = "{} {}".format(verified_data['name_investment'], verified_data['surname_investment'])
+
+        owned_investments, created = models.OwnedInvestmentsTableEntry.objects.get_or_create(
+            investment_issuer_name = issuer_name,
+            type_of_investment = verified_data['investment_type'],
+            number_of_stocks = verified_data['number_of_shares'],
+            share_ratio = verified_data['participation_quota'],
+            total_value = verified_data['total_value'],
+            currency = verified_data['currency']
+        )
+
+@register()
 class TaskTranscribeOwnedInvestmentsTable(CountTableRowsTask):
     task_form = forms.TranscribeOwnedInvestmentsTable
     storage_model = models.OwnedInvestmentsTable
-    # TODO - add child_class
-    child_class = None
-
+    child_class = TaskTranscribeOwnedInvestmentsRowEntry
 
 class TaskTranscribeOwnedIncomeFromOtherSourcesTable(CountTableRowsTask):
     task_form = forms.TranscribeOwnedIncomeFromOtherSourcesTable
