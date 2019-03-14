@@ -233,12 +233,13 @@ class TranscribeOwnedInvestmentsRowEntry(forms.Form):
         participation_quota = cleaned_data.get("participation_quota")
 
         if not commercial_entity and not limited_resp_com_entity and not (name_investment and surname_investment):
-            # raise forms.ValidationError("Cel putin unul din campuri trebuie completat: Societatea comerciala/Emitent / SRL / Nume Prenume beneficiar")
-            message = 'Cel putin unul din campuri trebuie completat: Societatea comerciala/Emitent / SRL / Nume Prenume beneficiar'
-            self.add_error('commercial_entity', message)
-            self.add_error('limited_resp_com_entity', message)
-            self.add_error('name_investment', message)
-            self.add_error('surname_investment', message)
+            raise forms.ValidationError(_("Cel putin unul din campuri trebuie completat: Societatea comerciala/Emitent / SRL / Nume Prenume beneficiar"), code='no fields filled')
+
+        if (commercial_entity and limited_resp_com_entity) or (commercial_entity and (name_investment and surname_investment)) or (limited_resp_com_entity and (name_investment and surname_investment)):
+            raise forms.ValidationError(_("Cel mult unul din campuri trebuie completat: Societatea comerciala/Emitent / SRL / Nume Prenume beneficiar"), code='too many fields')
 
         if not number_of_shares and not participation_quota:
-            raise forms.ValidationError(_("Cel putin unul din campuri trebuie completat: Numar titluri/Cota participare"), code='invalid')
+            raise forms.ValidationError(_("Cel putin unul din campuri trebuie completat: Numar titluri/Cota participare"), code='no fields filled')
+
+        if number_of_shares and participation_quota:
+            raise forms.ValidationError(_("Cel mult unul din campuri trebuie completat: Numar titluri/Cota participare"), code='too many fields')

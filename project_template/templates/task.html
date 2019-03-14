@@ -23,6 +23,7 @@
             <div class="row-fluid">
                 {# Provide additional context for non-native speakers #}
                 {% if "en" in request.LANGUAGE_CODE %}
+                    {% block error_block %}{% endblock %}                
                     {% block explanation %}{% endblock %}
                 {% endif %}
                 {# Forms incoming! #}
