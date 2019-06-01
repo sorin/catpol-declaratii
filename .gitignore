@@ -3,6 +3,7 @@ db.sqlite3
 
 # IDE
 .idea/
+.vscode/
 
 # Python
 # Byte-compiled / optimized / DLL files
@@ -32,3 +33,4 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+venv/
