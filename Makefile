@@ -16,8 +16,12 @@ cleandb:
 	rm -f project_template/migrations/*
 	rm -f db.sqlite3
 
-installdb: cleandb
+makemigrations:
 	(export DJANGO_SETTINGS_MODULE=project_template.settings.dev && ./venv/bin/python manage.py makemigrations)
+
+migrate:
 	(export DJANGO_SETTINGS_MODULE=project_template.settings.dev && ./venv/bin/python manage.py migrate --run-syncdb)
+
+installdb: cleandb makemigrations migrate
 
 setup: install-requirements-force installdb

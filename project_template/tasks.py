@@ -52,7 +52,8 @@ class TaskOwnedLandRowEntry(DigitalizationTask):
             taxable_value=verified_data['taxable_value'],
             taxable_value_currency=verified_data['taxable_value_currency'],
             attainment_type=verified_data['attainment_type'],
-            observations=verified_data.get('observations', '')
+            observations=verified_data.get('observations', ''),
+            row_number=verified_data['row_number']
         )
 
 

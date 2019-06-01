@@ -59,6 +59,7 @@ class TranscribeOwnedLandSingleRowEntry(forms.Form):
     attainment_type = forms.ChoiceField(label="Care este modul in care terenul a fost dobandit?", choices=AttainmentType.return_as_iterable())
     owner_surname = forms.CharField(label="Care este numele proprietarului?")
     owner_name = forms.CharField(label="Care este prenumele proprietarului")
+    row_number = forms.HiddenInput()
 
 class TranscribeOwnedBuildingsTable(forms.Form):
     count = forms.IntegerField(label="Câte rânduri completate există în tabelul {}".format(constants.DECLARATION_TABLES['buildings']))

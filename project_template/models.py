@@ -116,6 +116,7 @@ class OwnedLandTableEntry(CommonInfo):
     taxable_value_currency = models.CharField("Valuta", max_length=16, choices=Currency.return_as_iterable())
     attainment_type = models.CharField("Modul de dobandire", max_length=32, choices=AttainmentType.return_as_iterable(), blank=True)
     observations = models.CharField("Observatii", max_length=256, blank=True)
+    row_number = models.IntegerField("Row Number")
 
 # Tabel Cladiri - row numbers
 class OwnedBuildingsTable(models.Model):
